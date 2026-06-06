@@ -1,0 +1,29 @@
+menuconfig BTHOME
+bool "BTHome V2 support"
+help
+  Enable APIs for building BTHome V2 BLE advertising payloads.
+
+if BTHOME
+
+config BTHOME_ENCRYPTION
+bool "Enable BTHome V2 encryption support"
+default n
+help
+  Enable optional encryption-related API and metadata support.
+
+choice BTHOME_CRYPTO_BACKEND
+prompt "BTHome crypto backend"
+default BTHOME_CRYPTO_BACKEND_MBEDTLS
+depends on BTHOME_ENCRYPTION
+
+config BTHOME_CRYPTO_BACKEND_MBEDTLS
+bool "Mbed TLS backend"
+select MBEDTLS
+
+config BTHOME_CRYPTO_BACKEND_TINYCRYPT
+bool "TinyCrypt backend"
+select TINYCRYPT
+
+endchoice
+
+endif # BTHOME
