@@ -1,0 +1,49 @@
+# Copyright (c) 2026
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig BTHOME
+bool "BTHome V2 support"
+depends on BT
+help
+  Enable APIs for building BTHome V2 BLE advertising payloads
+  (UUID 0xFCD2).  Provides a queue-based encoder context, helper
+  functions for all standard BTHome V2 object types, and a
+  Zephyr bt_data helper for direct use with bt_le_adv_start().
+
+  Specification: https://bthome.io/format/
+
+if BTHOME
+
+config BTHOME_ENCRYPTION
+bool "BTHome V2 encryption support"
+default n
+help
+  Enable the encryption flag in the BTHome device-info byte and
+  reserve the optional AES-CCM payload path.  Full encryption
+  requires a bind key to be provided by the application and an
+  appropriate crypto backend to be configured below.
+
+choice BTHOME_CRYPTO_BACKEND
+prompt "BTHome crypto backend"
+default BTHOME_CRYPTO_BACKEND_MBEDTLS
+depends on BTHOME_ENCRYPTION
+
+config BTHOME_CRYPTO_BACKEND_MBEDTLS
+bool "Mbed TLS"
+select MBEDTLS
+help
+  Use the Mbed TLS AES-CCM implementation bundled with Zephyr.
+
+config BTHOME_CRYPTO_BACKEND_TINYCRYPT
+bool "TinyCrypt"
+select TINYCRYPT
+help
+  Use the TinyCrypt AES-CCM implementation bundled with Zephyr.
+
+endchoice
+
+module = BTHOME
+module-str = bthome
+source "subsys/logging/Kconfig.template.log_config"
+
+endif # BTHOME
