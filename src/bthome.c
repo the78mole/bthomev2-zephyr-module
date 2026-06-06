@@ -21,6 +21,10 @@ LOG_MODULE_REGISTER(bthome);
 
 static int reserve_bytes(struct bthome_builder *builder, size_t required)
 {
+if (builder->len > builder->capacity) {
+return -EINVAL;
+}
+
 if ((builder->capacity - builder->len) < required) {
 return -ENOSPC;
 }
@@ -108,17 +112,17 @@ return bthome_builder_add_u16(builder, object_id, as_u16);
 }
 
 int bthome_builder_add_fixed_point_s16(struct bthome_builder *builder, uint8_t object_id,
-			       int32_t value, int32_t factor)
+       int32_t value, int32_t scale)
 {
 int64_t scaled;
 
-if (factor <= 0) {
-	return -EINVAL;
+if (scale <= 0) {
+return -EINVAL;
 }
 
-scaled = (int64_t)value * (int64_t)factor;
+scaled = (int64_t)value * (int64_t)scale;
 if ((scaled > INT16_MAX) || (scaled < INT16_MIN)) {
-	return -ERANGE;
+return -ERANGE;
 }
 
 return bthome_builder_add_s16(builder, object_id, (int16_t)scaled);
